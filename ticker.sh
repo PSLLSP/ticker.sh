@@ -34,13 +34,13 @@ results=$(curl --silent "$API_ENDPOINT&fields=$fields&symbols=$symbols" \
   | jq '.quoteResponse .result')
 
 query () {
-  echo $results | jq -r ".[] | select(.symbol == \"$1\") | .$2"
+  echo $results | jq -r "[.[] | select(.symbol == \"$1\") | .$2][0]"
 }
 
 for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
   marketState="$(query $symbol 'marketState')"
 
-  if [ -z $marketState ]; then
+  if [ "$marketState" = "null" ]; then
     printf 'No results for symbol "%s"\n' $symbol
     continue
   fi
