@@ -42,7 +42,7 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
   marketState="$(query $symbol 'marketState')"
 
   if [ "$marketState" = "null" ]; then
-    printf 'No results for symbol "%s"\n' $symbol
+    printf "%-10s No data! Is symbol valid?\n" $symbol
     continue
   fi
 
@@ -71,7 +71,7 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
   fi
 
   if [ "$price" = "null" ]; then
-    printf "%-10s market data are missing\n" $symbol
+    printf "%-10s Market data are missing. Is symbol active?\n" $symbol
     continue
   fi
   
