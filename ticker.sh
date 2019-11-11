@@ -47,7 +47,7 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
 
   preMarketChange="$(query $symbol 'preMarketChange')"
   postMarketChange="$(query $symbol 'postMarketChange')"
-
+  
   if [ $marketState == "PRE" ] \
     && [ $preMarketChange != "0" ] \
     && [ $preMarketChange != "null" ]; then
@@ -67,6 +67,11 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
     price=$(query $symbol 'regularMarketPrice')
     diff=$(query $symbol 'regularMarketChange')
     percent=$(query $symbol 'regularMarketChangePercent')
+  fi
+
+  if [ "$price" = "null" ]; then
+    printf "%-10s market data are missing\n" $symbol
+    continue
   fi
 
   if [ "$diff" == "0" ]; then
