@@ -17,7 +17,8 @@ if [ -z "$SYMBOLS" ]; then
 fi
 
 FIELDS=(symbol marketState regularMarketPrice regularMarketChange regularMarketChangePercent \
-  preMarketPrice preMarketChange preMarketChangePercent postMarketPrice postMarketChange postMarketChangePercent)
+  preMarketPrice preMarketChange preMarketChangePercent postMarketPrice postMarketChange postMarketChangePercent \
+  regularMarketVolume regularMarketDayLow regularMarketDayHigh averageDailyVolume3Month)
 API_ENDPOINT="https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&corsDomain=finance.yahoo.com"
 
 if [ -z "$NO_COLOR" ]; then
@@ -48,14 +49,14 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
   preMarketChange="$(query $symbol 'preMarketChange')"
   postMarketChange="$(query $symbol 'postMarketChange')"
   
-  if [ $marketState == "PRE" ] \
+  if [ "$marketState" == "PRE" ] \
     && [ $preMarketChange != "0" ] \
     && [ $preMarketChange != "null" ]; then
     nonRegularMarketSign='*'
     price=$(query $symbol 'preMarketPrice')
     diff=$preMarketChange
     percent=$(query $symbol 'preMarketChangePercent')
-  elif [ $marketState != "REGULAR" ] \
+  elif [ "$marketState" != "REGULAR" ] \
     && [ $postMarketChange != "0" ] \
     && [ $postMarketChange != "null" ]; then
     nonRegularMarketSign='*'
@@ -63,7 +64,7 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
     diff=$postMarketChange
     percent=$(query $symbol 'postMarketChangePercent')
   else
-    nonRegularMarketSign=''
+    nonRegularMarketSign='-'
     price=$(query $symbol 'regularMarketPrice')
     diff=$(query $symbol 'regularMarketChange')
     percent=$(query $symbol 'regularMarketChangePercent')
@@ -73,6 +74,11 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
     printf "%-10s market data are missing\n" $symbol
     continue
   fi
+  
+  regularMarketDayLow=$(query $symbol 'regularMarketDayLow')
+  regularMarketDayHigh=$(query $symbol 'regularMarketDayHigh')
+  regularMarketVolume=$(query $symbol 'regularMarketVolume')
+  averageDailyVolume3Month=$(query $symbol 'averageDailyVolume3Month')
 
   if [ "$diff" == "0" ]; then
     color=
@@ -82,7 +88,8 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
     color=$COLOR_GREEN
   fi
 
-  printf "%-10s$COLOR_BOLD%11.5f$COLOR_RESET" $symbol $price
-  printf "$color%13.5f%12s$COLOR_RESET" $diff $(printf "(%.2f%%)" $percent)
-  printf " %s\n" "$nonRegularMarketSign"
+  printf "%-10s$COLOR_BOLD%11.5f$COLOR_RESET" "$symbol" "$price"
+  printf "$color%10.2f%12s$COLOR_RESET" $diff $(printf "(%.2f%%)" $percent)
+  printf " %s" "$nonRegularMarketSign"
+  printf " %11.5f %11.5f %12d\n" "$regularMarketDayLow" "$regularMarketDayHigh" "$regularMarketVolume"
 done
