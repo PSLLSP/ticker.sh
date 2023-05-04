@@ -2,7 +2,7 @@
 
 > Real-time stock tickers from the command-line.
 
-`ticker.sh` is a simple shell script using the Yahoo Finance API as a data source. It features colored output and is able to display pre- and post-market prices.
+`ticker.sh` is a simple shell script using the Yahoo Finance API as a data source. It features colored output and is able to display pre- and post-market prices (denoted with `*`).
 
 ![ticker.sh](https://raw.githubusercontent.com/pstadler/ticker.sh/master/screenshot.png)
 
@@ -42,7 +42,7 @@ $ watch -n 5 -t -c ./ticker.sh AAPL MSFT GOOG BTC-USD
 $ while true; do clear; ./ticker.sh AAPL MSFT GOOG BTC-USD; sleep 5; done
 ```
 
-This script works well with [GeekTool](https://www.tynsoe.org/v2/geektool/) and similar software:
+This script works well with [GeekTool](https://www.tynsoe.org/geektool/) and similar software:
 
 ```sh
 PATH=/usr/local/bin:$PATH # make sure to include the path where jq is located

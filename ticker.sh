@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 LANG=C
@@ -38,7 +38,7 @@ query () {
   echo $results | jq -r "[.[] | select(.symbol == \"$1\") | .$2][0]"
 }
 
-for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
+for symbol in $(IFS=' '; echo "${SYMBOLS[*]}" | tr '[:lower:]' '[:upper:]'); do
   marketState="$(query $symbol 'marketState')"
 
   if [ "$marketState" = "null" ]; then
@@ -80,7 +80,7 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
   regularMarketVolume=$(query $symbol 'regularMarketVolume')
   averageDailyVolume3Month=$(query $symbol 'averageDailyVolume3Month')
 
-  if [ "$diff" == "0" ]; then
+  if [ "$diff" == "0" ] || [ "$diff" == "0.0" ]; then
     color=
   elif ( echo "$diff" | grep -q ^- ); then
     color=$COLOR_RED
@@ -88,8 +88,9 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
     color=$COLOR_GREEN
   fi
 
-  printf "%-10s$COLOR_BOLD%11.5f$COLOR_RESET" "$symbol" "$price"
-  printf "$color%10.2f%12s$COLOR_RESET" $diff $(printf "(%.2f%%)" $percent)
-  printf " %s" "$nonRegularMarketSign"
-  printf " %11.5f %11.5f %12d\n" "$regularMarketDayLow" "$regularMarketDayHigh" "$regularMarketVolume"
+  if [ "$price" != "null" ]; then
+    printf "%-10s$COLOR_BOLD%8.2f$COLOR_RESET" $symbol $price
+    printf "$color%10.2f%12s$COLOR_RESET" $diff $(printf "(%.2f%%)" $percent)
+    printf " %s\n" "$nonRegularMarketSign"
+  fi
 done
