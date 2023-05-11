@@ -48,7 +48,7 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}" | tr '[:lower:]' '[:upper:]'); do
 
   preMarketChange="$(query $symbol 'preMarketChange')"
   postMarketChange="$(query $symbol 'postMarketChange')"
-  
+
   if [ "$marketState" == "PRE" ] \
     && [ $preMarketChange != "0" ] \
     && [ $preMarketChange != "null" ]; then
@@ -74,11 +74,31 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}" | tr '[:lower:]' '[:upper:]'); do
     printf "%-10s Market data are missing. Is symbol active?\n" $symbol
     continue
   fi
-  
+
+  if [ "$percent" = "null" ]; then
+    # IPO?
+    percent="0"
+  fi
+
+  if [ "$diff" = "null" ]; then
+    # IPO?
+    diff="0"
+  fi
   regularMarketDayLow=$(query $symbol 'regularMarketDayLow')
   regularMarketDayHigh=$(query $symbol 'regularMarketDayHigh')
   regularMarketVolume=$(query $symbol 'regularMarketVolume')
   averageDailyVolume3Month=$(query $symbol 'averageDailyVolume3Month')
+  if [ "$regularMarketDayLow" == "null" ]; then
+    regularMarketDayLow=0
+  fi
+
+  if [ "$regularMarketDayHigh" == "null" ]; then
+    regularMarketDayHigh=0
+  fi
+
+  if [ "$regularMarketVolume" == "null" ]; then
+    regularMarketVolume=0
+  fi
 
   if [ "$diff" == "0" ] || [ "$diff" == "0.0" ]; then
     color=
